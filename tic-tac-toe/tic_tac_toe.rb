@@ -14,7 +14,7 @@ class Game
       until @board.set_move(coord.split(','), @turn)
         coord = get_input
       end
-      @turn = (@turn + 1) % 2
+      @turn = @turn == 1 ? 2 : 1
       @board.print_board
     end
     print_win_message
@@ -24,7 +24,7 @@ class Game
     if @turn == 2
       puts 'X Wins!'
     else
-      puts 'Y wins!'
+      puts 'O wins!'
     end
   end
 
@@ -45,10 +45,12 @@ class Board
   end
 
   def print_board
+    puts ''
     @board.each_index do |index|
       print_line(@board[index])
       print_line('-') unless index == 2
     end
+    puts ''
   end
 
   def valid_coord?(char)
@@ -57,11 +59,22 @@ class Board
     false
   end
 
+  def space_free?(coord)
+    return true if @board[coord[0].to_i][coord[1].to_i] == ' '
+
+    false
+  end
+
   def set_move(coord, turn)
     return false if coord.length != 2 || !valid_coord?(coord[0]) || !valid_coord?(coord[1])
 
+    unless space_free?(coord)
+      puts 'That space is already taken! Try again!'
+      return false
+    end
+
     char = turn == 1 ? 'X' : 'O'
-    @board[coord[0].to_i, coord[1].to_i] = char
+    @board[coord[0].to_i][coord[1].to_i] = char
     true
   end
 
@@ -88,7 +101,7 @@ class Board
 
   def print_line(line)
     if line == '-'
-      puts '---------'
+      puts '-----------'
     else
       puts " #{line[0]} | #{line[1]} | #{line[2]} "
     end
