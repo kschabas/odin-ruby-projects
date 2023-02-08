@@ -12,6 +12,16 @@ class Game
     until @board.winner?
       (coord = get_input(@turn)) until @board.set_move(coord.split(','), @turn)
       @turn = (@turn + 1) % 2
+      @board.print_board
+    end
+    print_win_message
+  end
+
+  def print_win_message
+    if @turn == 2
+      puts 'X Wins!'
+    else
+      puts 'Y wins!'
     end
   end
 
@@ -27,7 +37,7 @@ class Board
     @board = Array.new(3, Array.new(3, ' '))
   end
 
-  def clear_board
+  def clear
     @board.each_index { |index| @board[index] = [' ', ' ', ' '] }
   end
 
@@ -46,6 +56,25 @@ class Board
     true
   end
 
+  def winner?
+    return true if line?(board[0][0], board[0][1], board[0][2]) ||
+                   line?(board[0][0], board[1][0], board[2][0]) ||
+                   line?(board[0][0], board[1][1], board[2][2]) ||
+                   line?(board[0][1], board[1][1], board[2][1]) ||
+                   line?(board[1][0], board[1][1], board[1][2]) ||
+                   line?(board[0][2], board[1][2], board[2][2]) ||
+                   line?(board[0][2], board[1][1], board[2][0]) ||
+                   line?(board[2][0], board[2][1], board[2][2])
+
+    false
+  end
+
+  def line?(one,two,three)
+    return true if one != ' ' && one == two && one == three
+
+    false
+  end
+
   private
 
   def print_line(line)
@@ -57,5 +86,4 @@ class Board
   end
 end
 
-test = Board.new
-test.print_board
+Game.play_game
