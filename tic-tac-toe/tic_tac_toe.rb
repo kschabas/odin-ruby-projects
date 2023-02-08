@@ -10,7 +10,10 @@ class Game
   def play_game
     @board.clear
     until @board.winner?
-      (coord = get_input(@turn)) until @board.set_move(coord.split(','), @turn)
+      coord = get_input
+      until @board.set_move(coord.split(','), @turn)
+        coord = get_input
+      end
       @turn = (@turn + 1) % 2
       @board.print_board
     end
@@ -26,7 +29,7 @@ class Game
   end
 
   def get_input
-    print "Player #{@turn}: Please enter move as x,y"
+    puts "Player #{@turn}: Please enter move as x,y"
     gets.chomp
   end
 end
@@ -48,28 +51,34 @@ class Board
     end
   end
 
-  def set_move(coord, turn)
-    return false if coord.length != 2 || !coord.between(0, 2) || !coord.between(0, 2)
-
-    char = turn == 1 ? 'X' : 'O'
-    @board[coord[0], coord[1]] = char
-    true
-  end
-
-  def winner?
-    return true if line?(board[0][0], board[0][1], board[0][2]) ||
-                   line?(board[0][0], board[1][0], board[2][0]) ||
-                   line?(board[0][0], board[1][1], board[2][2]) ||
-                   line?(board[0][1], board[1][1], board[2][1]) ||
-                   line?(board[1][0], board[1][1], board[1][2]) ||
-                   line?(board[0][2], board[1][2], board[2][2]) ||
-                   line?(board[0][2], board[1][1], board[2][0]) ||
-                   line?(board[2][0], board[2][1], board[2][2])
+  def valid_coord?(char)
+    return true if %w[0 1 2].include?(char)
 
     false
   end
 
-  def line?(one,two,three)
+  def set_move(coord, turn)
+    return false if coord.length != 2 || !valid_coord?(coord[0]) || !valid_coord?(coord[1])
+
+    char = turn == 1 ? 'X' : 'O'
+    @board[coord[0].to_i, coord[1].to_i] = char
+    true
+  end
+
+  def winner?
+    return true if line?(@board[0][0], @board[0][1], @board[0][2]) ||
+                   line?(@board[0][0], @board[1][0], @board[2][0]) ||
+                   line?(@board[0][0], @board[1][1], @board[2][2]) ||
+                   line?(@board[0][1], @board[1][1], @board[2][1]) ||
+                   line?(@board[1][0], @board[1][1], @board[1][2]) ||
+                   line?(@board[0][2], @board[1][2], @board[2][2]) ||
+                   line?(@board[0][2], @board[1][1], @board[2][0]) ||
+                   line?(@board[2][0], @board[2][1], @board[2][2])
+
+    false
+  end
+
+  def line?(one, two, three)
     return true if one != ' ' && one == two && one == three
 
     false
@@ -86,4 +95,5 @@ class Board
   end
 end
 
-Game.play_game
+my_game = Game.new
+my_game.play_game
