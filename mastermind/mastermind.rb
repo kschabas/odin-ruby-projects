@@ -18,7 +18,7 @@ class Mastermind
   def play_game
     clear_board
     @answer.new_code
-    while @turn <= MAX_TURNS && !@board.winner?
+    while @turn <= MAX_TURNS && !winner?
       guess = user_guess
       process_guess(guess, @answer)
       print_board?
@@ -29,7 +29,18 @@ class Mastermind
 
   def user_guess
     puts 'Please enter your guess using numbers 1 to 6'
-    gets.chomp.split('')
+    # input = gets.chomp.split('')
+    input = "1236".split('')
+    input = input.map { |item| item.to_i }
+    until valid_input?(input)
+      puts 'Bad input! Please try again'
+      input = gets.chomp.split('')
+    end
+    input
+  end
+
+  def valid_input?(input)
+    input.all? { |e| e.between?(1, 6) }
   end
 
   def winner?
