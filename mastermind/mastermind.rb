@@ -20,17 +20,22 @@ class Mastermind
     @answer.new_code
     while @turn <= MAX_TURNS && !winner?
       guess = user_guess
-      process_guess(guess, @answer)
+      process_guess(guess)
       print_board?
       @turn += 1
     end
     print_end_message
   end
 
+  def process_guess(guess)
+    @board[@turn].guess.code = guess
+    @board[@turn].guess_result = compute_result(guess, @answer)
+  end
+
   def user_guess
     puts 'Please enter your guess using numbers 1 to 6'
     # input = gets.chomp.split('')
-    input = "1236".split('')
+    input = '1236'.split('')
     input = input.map { |item| item.to_i }
     until valid_input?(input)
       puts 'Bad input! Please try again'
@@ -54,6 +59,8 @@ end
 
 # Class for one row of the board
 class Row
+  attr_accessor :guess, guess_result
+
   def initialize
     @guess = ColorGuess.new
     @guess_result = GuessResult.new
@@ -62,6 +69,7 @@ class Row
   def code
     @guess.code
   end
+
 end
 
 # Class for each guess
