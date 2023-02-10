@@ -5,14 +5,14 @@ class Mastermind
   MAX_TURNS = 12
   def initialize
     @board = Array.new(12)
-    @board.each_index { |index| @board[index] = Row.new}
+    @board.each_index { |index| @board[index] = Row.new }
     @turn = 0
     @answer = ColorGuess.new
   end
 
   def clear_board
     @board = Array.new(12)
-    @board.each_index { |index| @board[index] = Row.new}
+    @board.each_index { |index| @board[index] = Row.new }
     @answer.clear
     @turn = 0
   end
@@ -121,7 +121,7 @@ end
 # Result of each guess
 class GuessResult
   attr_accessor :guess
-  
+
   def initialize
     @guess = Array.new(4, '.')
   end
@@ -153,7 +153,7 @@ class GuessResult
       answer.code.each_index do |aindex|
         next unless answer.code[aindex] == guess.code[index]
 
-        next if peg_used[aindex]
+        next if peg_used[aindex] || guess.code[aindex] == answer.code[aindex]
 
         mark('W')
         peg_used[aindex] = true
