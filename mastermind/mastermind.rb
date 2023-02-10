@@ -34,6 +34,7 @@ class Mastermind
   end
 
   def compute_result(guess, answer)
+    result = GuessResult.new
     result.mark_blacks(guess, answer)
     result.mark_whites(guess, answer)
   end
@@ -65,7 +66,7 @@ end
 
 # Class for one row of the board
 class Row
-  attr_accessor :guess, guess_result
+  attr_accessor :guess, :guess_result
 
   def initialize
     @guess = ColorGuess.new
@@ -118,15 +119,16 @@ class GuessResult
   def mark_whites(guess, answer)
     peg_used = [false, false, false, false]
     guess.code.each_index do |index|
-      next if guess.code[index] == answer.code[index]
+      next if guess.code[index] == answer.code[index] # already marked black
 
       answer.code.each_index do |aindex|
         next unless answer.code[aindex] == guess.code[index]
 
-        unless peg_used[aindex]
-          mark('W')
-          peg_used[aindex] = true
-        end
+        next if peg_used[aindex]
+
+        mark('W')
+        peg_used[aindex] = true
+        break
       end
     end
     @guess
