@@ -21,8 +21,7 @@ class Mastermind
     @board.reverse_each { |row| row.print_row }
   end
 
-  def play_game
-    clear_board
+  def play_human_game
     @answer.new_code
     guess = ColorGuess.new
     while @turn < MAX_TURNS && !winner?
@@ -32,6 +31,33 @@ class Mastermind
       @turn += 1
     end
     print_end_message
+  end
+
+  def play_computer_game
+    @answer = human_code
+    possible_guesses = initial_possible_guesses
+    until winner?
+      computer_guess = next_guess(possible_guesses)
+      guess_result = process_computer_guess(computer_guess, answer)
+      possible_guesses = reduce_guess(possible_guesses, computer_guess, guess_result)
+      @turn += 1
+    end
+  end
+
+  def human_game?
+    puts '(H)uman or (C)omputer codebreaker?'
+    return true if gets.chomp == 'H'
+
+    false
+  end
+
+  def play_game
+    clear_board
+    if human_game?
+      play_human_game
+    else
+      play_computer_game
+    end
   end
 
   def print_end_message
