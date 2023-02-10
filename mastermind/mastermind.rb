@@ -18,8 +18,9 @@ class Mastermind
   def play_game
     clear_board
     @answer.new_code
-    while @turn <= MAX_TURNS && !winner?
-      guess = user_guess
+    guess = ColorGuess.new
+    while @turn < MAX_TURNS && !winner?
+      guess.code = user_guess
       process_guess(guess)
       print_board?
       @turn += 1
@@ -30,6 +31,11 @@ class Mastermind
   def process_guess(guess)
     @board[@turn].guess.code = guess
     @board[@turn].guess_result = compute_result(guess, @answer)
+  end
+
+  def compute_result(guess, answer)
+    result.mark_blacks(guess, answer)
+    result.mark_whites(guess, answer)
   end
 
   def user_guess
@@ -69,7 +75,6 @@ class Row
   def code
     @guess.code
   end
-
 end
 
 # Class for each guess
@@ -93,6 +98,38 @@ end
 class GuessResult
   def initialize
     @guess = Array.new(4, '.')
+  end
+
+  def mark(color)
+    i = 0
+    i += 1 until @guess[i] == '.'
+    @guess[i] = color
+  end
+
+  def mark_blacks(guess, answer)
+    guess.code.each_index do |index|
+      next unless guess.code[index] == answer.code[index]
+
+      mark('B')
+    end
+    @guess
+  end
+
+  def mark_whites(guess, answer)
+    peg_used = [false, false, false, false]
+    guess.code.each_index do |index|
+      next if guess.code[index] == answer.code[index]
+
+      answer.code.each_index do |aindex|
+        next unless answer.code[aindex] == guess.code[index]
+
+        unless peg_used[aindex]
+          mark('W')
+          peg_used[aindex] = true
+        end
+      end
+    end
+    @guess
   end
 end
 
