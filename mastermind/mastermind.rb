@@ -17,6 +17,17 @@ class Mastermind
     @turn = 0
   end
 
+  def play_game
+    clear_board
+    if human_game?
+      play_human_game
+    else
+      play_computer_game
+    end
+  end
+
+  private
+
   def print_board
     @board.reverse_each { |row| row.print_row }
   end
@@ -34,30 +45,50 @@ class Mastermind
   end
 
   def play_computer_game
-    @answer = human_code
+    @answer.code = "1234".split('') # human_code
     possible_guesses = initial_possible_guesses
     until winner?
-      computer_guess = next_guess(possible_guesses)
-      guess_result = process_computer_guess(computer_guess, answer)
-      possible_guesses = reduce_guess(possible_guesses, computer_guess, guess_result)
+      computer_guess = ColorGuess.new
+      computer_guess.code = "1122".split('')
+      # computer_guess = next_guess(possible_guesses)
+      guess_result = process_guess(computer_guess)
+      possible_guesses = reduce_guesses(possible_guesses, computer_guess, guess_result)
+      print_computer_guess
+      print_board
       @turn += 1
     end
   end
 
-  def human_game?
-    puts '(H)uman or (C)omputer codebreaker?'
-    return true if gets.chomp == 'H'
-
-    false
+  def reduce_guesses(possible_guesses, computer_guess, guess_result)
+    possible_guesses.select { |guess| compute_result(guess, computer_guess).guess == guess_result.guess }
   end
 
-  def play_game
-    clear_board
-    if human_game?
-      play_human_game
-    else
-      play_computer_game
+  def human_code
+    puts 'Please enter the 4 digit secret code using the numbers 1-6'
+    gets.chomp
+  end
+
+  def initial_possible_guesses
+    array_of_guesses = []
+    array_of_digits = %w[1 2 3 4 5 6]
+    array_of_digits.each do |a|
+      array_of_digits.each do |b|
+        array_of_digits.each do |c|
+          array_of_digits.each do |d|
+            array_of_guesses.push(ColorGuess.new(a + b + c + d))
+          end
+        end
+      end
     end
+    array_of_guesses
+  end
+
+  def human_game?
+    return false
+    # puts '(H)uman or (C)omputer codebreaker?'
+    # return true if gets.chomp == 'H'
+
+    # false
   end
 
   def print_end_message
@@ -70,7 +101,7 @@ class Mastermind
 
   def process_guess(guess)
     @board[@turn].guess.code = guess.code
-    @board[@turn].guess_result.guess = compute_result(guess, @answer).guess
+    @board[@turn].guess_result = compute_result(guess, @answer)
   end
 
   def compute_result(guess, answer)
@@ -127,8 +158,16 @@ end
 class ColorGuess
   attr_accessor :code
 
-  def initialize
-    @code = Array.new(4, 'X')
+  # def initialize
+  #   @code = Array.new(4, 'X')
+  # end
+
+  def initialize(code_string = nil)
+    @code = if code_string.nil?
+              Array.new(4, 'X')
+            else
+              Array.new(code_string.split(''))
+            end
   end
 
   def print
