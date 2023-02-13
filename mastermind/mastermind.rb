@@ -8,6 +8,8 @@ class Mastermind
     @board.each_index { |index| @board[index] = Row.new }
     @turn = 0
     @answer = ColorGuess.new
+    @possible_guesses = initial_possible_guesses
+    @possible_results = initial_possible_results
   end
 
   def clear_board
@@ -45,18 +47,49 @@ class Mastermind
   end
 
   def play_computer_game
-    @answer.code = "1234".split('') # human_code
-    possible_guesses = initial_possible_guesses
+    @answer.code = human_code.split('')
+    possible_guesses = @possible_guesses
+    computer_guess = ColorGuess.new
     until winner?
-      computer_guess = ColorGuess.new
-      computer_guess.code = "1122".split('')
-      # computer_guess = next_guess(possible_guesses)
+      # computer_guess.code = "1122".split('')
+      computer_guess.code = next_guess(possible_guesses)
       guess_result = process_guess(computer_guess)
       possible_guesses = reduce_guesses(possible_guesses, computer_guess, guess_result)
-      print_computer_guess
+      print_computer_guess(computer_guess.code)
       print_board
       @turn += 1
     end
+    puts "The computer won in #{@turn} turns!!!"
+  end
+
+  def print_computer_guess(guess)
+    puts "Computer guesses: #{guess.join}"
+  end
+
+  def next_guess(possible_answers)
+    return '1122'.split('') if @turn.zero?
+    return possible_answers[0].code if possible_answers.length == 1
+
+    best_score = 2000
+    best_item = nil
+    possible_answers.each do |item|
+      minimax_score = minimax_score(item, possible_answers)
+      if minimax_score < best_score
+        best_score = minimax_score
+        best_item = item
+      end
+    end
+    best_item.code
+  end
+
+  def minimax_score(guess, possible_answers)
+    score = 0
+
+    @possible_results.each do |result|
+      reduced_guesses = reduce_guesses(possible_answers, guess, result)
+      score = reduced_guesses.length if reduced_guesses.length > score
+    end
+    score
   end
 
   def reduce_guesses(possible_guesses, computer_guess, guess_result)
@@ -66,6 +99,22 @@ class Mastermind
   def human_code
     puts 'Please enter the 4 digit secret code using the numbers 1-6'
     gets.chomp
+  end
+
+  def initial_possible_results
+    array_of_results = []
+    array_of_pegs = %w[. B W]
+
+    array_of_pegs.each do |a|
+      array_of_pegs.each do |b|
+        array_of_pegs.each do |c|
+          array_of_pegs.each do |d|
+            array_of_results.push(GuessResult.new(a + b + c + d))
+          end
+        end
+      end
+    end
+    array_of_results
   end
 
   def initial_possible_guesses
@@ -187,8 +236,12 @@ end
 class GuessResult
   attr_accessor :guess
 
-  def initialize
-    @guess = Array.new(4, '.')
+  def initialize(code_string = nil)
+    @guess =  if code_string.nil?
+                Array.new(4, '.')
+              else
+                Array.new(code_string.split(''))
+              end
   end
 
   def print
