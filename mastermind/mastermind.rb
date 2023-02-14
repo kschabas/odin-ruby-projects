@@ -135,11 +135,10 @@ class Mastermind
   end
 
   def human_game?
-    return false
-    # puts '(H)uman or (C)omputer codebreaker?'
-    # return true if gets.chomp == 'H'
+    puts '(H)uman or (C)omputer codebreaker?'
+    return true if gets.chomp == 'H'
 
-    # false
+    false
   end
 
   def print_end_message
@@ -239,11 +238,11 @@ class GuessResult
   attr_accessor :guess
 
   def initialize(code_string = nil)
-    @guess =  if code_string.nil?
-                Array.new(4, '.')
-              else
-                Array.new(code_string.split(''))
-              end
+    @guess = if code_string.nil?
+               Array.new(4, '.')
+             else
+               Array.new(code_string.split(''))
+             end
   end
 
   def print
