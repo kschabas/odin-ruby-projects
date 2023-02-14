@@ -31,7 +31,9 @@ class Mastermind
   private
 
   def print_board
+    puts ''
     @board.reverse_each { |row| row.print_row }
+    puts ''
   end
 
   def play_human_game
@@ -103,15 +105,15 @@ class Mastermind
 
   def initial_possible_results
     array_of_results = []
-    array_of_pegs = %w[. B W]
 
-    array_of_pegs.each do |a|
-      array_of_pegs.each do |b|
-        array_of_pegs.each do |c|
-          array_of_pegs.each do |d|
-            array_of_results.push(GuessResult.new(a + b + c + d))
-          end
-        end
+    5.times do |num_bs|
+      (5 - num_bs).times do |num_ws|
+        num_empty = 4 - num_bs - num_ws
+        next_result = ''
+        num_bs.times { next_result += 'B' }
+        num_ws.times { next_result += 'W' }
+        num_empty.times { next_result += '.' }
+        array_of_results.push(GuessResult.new(next_result))
       end
     end
     array_of_results
