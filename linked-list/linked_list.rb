@@ -100,6 +100,32 @@ class LinkedList
       print "(#{cur_ptr.value}) -> "
       cur_ptr = cur_ptr.next_node
     end
-    print 'nil'
+    print "nil\n"
+  end
+
+  def insert_at(value, index)
+    if index.zero?
+      prepend(value)
+    elsif index == size
+      append(value)
+    else
+      new_node = Node.new
+      new_node.value = value
+      prev_node = at(index - 1)
+      cur_node = at(index)
+      prev_node.next_node = new_node
+      new_node.next_node = cur_node
+    end
+  end
+
+  def remove_at(index)
+    if index.zero?
+      @head = @head.next_node
+    else
+      prev_node = at(index - 1)
+      cur_node = at(index)
+      prev_node.next_node = cur_node.next_node
+      @tail = prev_node if @tail == cur_node
+    end
   end
 end
