@@ -54,21 +54,29 @@ class Tree
     recursive_find(value, @root)
   end
 
-  def level_order
+  def level_order(&block)
     queue = [@root]
     result_array = []
 
     until queue.empty?
       cur_node = queue.pop
-      if block_given?
-        yield(cur_node)
-      else
-        result_array.push(cur_node.value)
-      end
+      yield_node(cur_node, result_array, block)
       queue.prepend(cur_node.left) unless cur_node.left.nil?
       queue.prepend(cur_node.right) unless cur_node.right.nil?
     end
     result_array
+  end
+
+  def inorder(&block)
+    recursive_inorder(@root, [], block)
+  end
+
+  def preorder(&block)
+    recursive_preorder(@root, [], block)
+  end
+
+  def postorder(&block)
+    recursive_postorder(@root, [], block)
   end
 
   def delete(value)
@@ -100,8 +108,16 @@ class Tree
     end
   end
 
+  def yield_node(node, result_array, block)
+    if block.nil?
+      result_array.push(node.value)
+    else
+      block.call(node)
+    end
+  end
+
   def find_predecessor(value)
-    recursive_find_predecssor(value, @root)
+    recursive_find_predecessor(value, @root)
   end
 
   def left_deletion(node, prev_node)
@@ -122,10 +138,37 @@ class Tree
     node.value = new_value
   end
 
-  def find_inorder_successor(node) 
+  def find_inorder_successor(node)
     cur_node_ptr = node.right # Assumes that there is a successor (i.e. node.right exists)
     cur_node_ptr = cur_node_ptr.left until cur_node_ptr.left.nil?
     cur_node_ptr
+  end
+
+  def recursive_inorder(node, result_array, block)
+    return if node.nil?
+
+    recursive_inorder(node.left, result_array, block)
+    yield_node(node, result_array, block)
+    recursive_inorder(node.right, result_array, block)
+    result_array
+  end
+
+  def recursive_preorder(node, result_array, block)
+    return if node.nil?
+
+    yield_node(node, result_array, block)
+    recursive_preorder(node.left, result_array, block)
+    recursive_preorder(node.right, result_array, block)
+    result_array
+  end
+
+  def recursive_postorder(node, result_array, block)
+    return if node.nil?
+
+    recursive_postorder(node.left, result_array, block)
+    recursive_postorder(node.right, result_array, block)
+    yield_node(node, result_array, block)
+    result_array
   end
 
   def leaf_deletion(node, prev_node)
@@ -164,20 +207,20 @@ class Tree
     recursive_find(value, node_ptr.right)
   end
 
-  def recursive_find_predecssor(value, node_ptr)
+  def recursive_find_predecessor(value, node_ptr)
     return nil if node_ptr.nil?
 
     return node_ptr if (!node_ptr.left.nil? && node_ptr.left.value == value) ||
                        (!node_ptr.right.nil? && node_ptr.right.value == value)
 
-    return recursive_find_predecssor(value, node_ptr.left) if value < node_ptr.value
+    return recursive_find_predecessor(value, node_ptr.left) if value < node_ptr.value
 
-    recursive_find_predecssor(value, node_ptr.right)
+    recursive_find_predecessor(value, node_ptr.right)
   end
 end
 
-tree = Tree.new([1,2,3,4,5,6])
-tree.delete(4)
-tree.level_order { |node| node.print }
+tree = Tree.new([4, 12, 10, 18, 24, 22, 15, 31, 44, 35, 66, 90, 70, 50, 25])
+tree.postorder { |node| node.print }
+# result =  tree.inorder
 
 puts 'All done!'
