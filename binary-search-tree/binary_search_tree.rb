@@ -20,6 +20,8 @@ end
 
 # tree class
 class Tree
+  attr_reader :root
+
   def initialize(array)
     build_tree(array)
   end
@@ -52,6 +54,27 @@ class Tree
 
   def find(value)
     recursive_find(value, @root)
+  end
+
+  def height(node)
+    return -1 if node.nil?
+
+    1 + [height(node.left), height(node.right)].max
+  end
+
+  def depth(node)
+    recursive_depth(@root, node, 0)
+  end
+
+  def balanced?
+    result = true
+    inorder { |node| result &&= ((height(node.left) - height(node.right)).abs <= 1) }
+    result
+  end
+
+  def rebalance
+    new_array = inorder
+    build_tree(new_array)
   end
 
   def level_order(&block)
@@ -120,6 +143,13 @@ class Tree
     recursive_find_predecessor(value, @root)
   end
 
+  def recursive_depth(node, target, level)
+    return -1 if node.nil?
+    return level if node.value == target.value
+
+    [recursive_depth(node.left, target, level + 1), recursive_depth(node.right, target, level + 1)].max
+  end
+
   def left_deletion(node, prev_node)
     return (@root = node.left) if prev_node.nil?
 
@@ -174,7 +204,7 @@ class Tree
   def leaf_deletion(node, prev_node)
     return (@root = nil) if prev_node.nil?
 
-    if prev_node.left.value == node.value
+    if !prev_node.left.nil? && prev_node.left.value == node.value
       prev_node.left = nil
     else
       prev_node.right = nil
@@ -220,7 +250,26 @@ class Tree
 end
 
 tree = Tree.new([4, 12, 10, 18, 24, 22, 15, 31, 44, 35, 66, 90, 70, 50, 25])
-tree.postorder { |node| node.print }
+#tree.postorder { |node| node.print }
 # result =  tree.inorder
 
-puts 'All done!'
+array = (Array.new(15) { rand(1..100) })
+tree = Tree.new(array)
+puts tree.balanced?
+puts tree.level_order
+puts tree.preorder
+puts tree.postorder
+puts tree.inorder
+tree.insert(110)
+tree.insert(120)
+tree.insert(130)
+tree.insert(140)
+tree.insert(150)
+tree.insert(160)
+tree.insert(170)
+puts tree.balanced?
+tree.rebalance
+puts tree.level_order
+puts tree.preorder
+puts tree.postorder
+puts tree.inorder
