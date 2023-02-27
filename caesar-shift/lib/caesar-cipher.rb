@@ -1,3 +1,5 @@
+#lib/caesar-cipher.rb
+
 def caesar_cipher(str,shift)
     result = ""
     str.each_char do |char| 
@@ -13,7 +15,7 @@ def caesar_cipher(str,shift)
             end
         else
             next_char = char;
-       end
+        end
         result += next_char
     end
     result
